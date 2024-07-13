@@ -1,7 +1,7 @@
 "use client";
 import * as z from "zod";
 import Heading from "@/components/heading";
-import { MessageSquare } from "lucide-react";
+import { Code, MessageSquare } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { formSchema } from "./constants";
@@ -15,11 +15,12 @@ import { cn } from "@/lib/utils";
 import UserAvatar from "@/components/avatar";
 import BotAvatar from "@/components/bot-avatar";
 import { useChat } from "ai/react";
+import ReactMarkdown from "react-markdown";
 
-const Conversation = () => {
+const CodePage = () => {
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
-      api: "/api/conversation",
+      api: "/api/code",
     });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -31,11 +32,11 @@ const Conversation = () => {
   return (
     <div>
       <Heading
-        title="Conversation"
-        description="Our most advance conversation modal"
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+        title="Code Genaration"
+        description="Genarate code using descritive text"
+        icon={Code}
+        iconColor="text-green-500"
+        bgColor="bg-green-500/10"
       />
       <div className="px-4 lg:px-8">
         <div>
@@ -52,7 +53,7 @@ const Conversation = () => {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder="How to i calculate the radius of a circle?"
+                        placeholder="Simple toggle button using react hook"
                         {...field}
                         value={input}
                         onChange={handleInputChange}
@@ -91,7 +92,21 @@ const Conversation = () => {
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                {message.content}
+                <ReactMarkdown
+                  components={{
+                    pre: ({ node, ...props }) => (
+                      <div className="overflow-auto w-auto my-2 bg-black/15 p-5 rounded-lg">
+                        <pre {...props} />
+                      </div>
+                    ),
+                    code: ({ node, ...props }) => (
+                      <code className="bg-black/10 rounded-lg p-1" {...props} />
+                    ),
+                  }}
+                  className="text-sm overflow-hidden leading-7"
+                >
+                  {message.content || ""}
+                </ReactMarkdown>
               </div>
             ))}
           </div>
@@ -101,4 +116,4 @@ const Conversation = () => {
   );
 };
 
-export default Conversation;
+export default CodePage;

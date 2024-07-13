@@ -10,6 +10,16 @@ export async function POST(req: Request) {
   // Get a language model
   const model = google("models/gemini-1.5-pro-latest");
 
+  // Define the system instruction
+  const systemInstruction =
+    "You are a code generator. You must answer in markdown code snippets.";
+
+  // Add system instruction as the first message in the prompt
+  const promptMessages = [
+    { role: "system", content: systemInstruction },
+    ...messages,
+  ];
+
   // Call the language model with the prompt
   const result = await streamText({
     model,
