@@ -1,8 +1,8 @@
 "use client";
 import * as z from "zod";
 import Heading from "@/components/heading";
-import { MessageSquare } from "lucide-react";
-import React from "react";
+import { Music } from "lucide-react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { formSchema } from "./constants";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,32 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
-import { cn } from "@/lib/utils";
-import UserAvatar from "@/components/avatar";
-import BotAvatar from "@/components/bot-avatar";
-import { useChat } from "ai/react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { useProModal } from "@/hooks/use-pro-model";
 import toast from "react-hot-toast";
 
-const Conversation = () => {
+const MusicPage = () => {
   const router = useRouter();
   const { onOpen } = useProModal();
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "/api/conversation",
-      onFinish: () => {
-        router.refresh();
-      },
-      onError: (error) => {
-        ("please try again");
-        if (error.message === "free trial has expired") {
-          onOpen();
-        } else {
-          toast.error("Somthing went wrong");
-        }
-      },
-    });
+  const [music, setMusic] = useState<string>();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,20 +27,40 @@ const Conversation = () => {
     },
   });
 
+  const isLoading = form.formState.isSubmitting;
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setMusic(undefined);
+      const response = await axios.post("/api/music", values);
+
+      setMusic(response.data.audio);
+      form.reset();
+    } catch (error: any) {
+      if (error?.response?.status === 403) {
+        onOpen();
+      } else {
+        toast.error("Somthing went wrong");
+      }
+    } finally {
+      router.refresh();
+    }
+  };
+
   return (
     <div>
       <Heading
-        title="Conversation"
-        description="Our most advance conversation modal"
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+        title="Music Generation"
+        description="Turn your prompt into music"
+        icon={Music}
+        iconColor="text-emerald-500"
+        bgColor="bg-emerald-500/10"
       />
       <div className="px-4 lg:px-8">
         <div>
           <Form {...form}>
             <form
-              onSubmit={handleSubmit}
+              onSubmit={form.handleSubmit(onSubmit)}
               className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
             >
               <FormField
@@ -68,10 +71,8 @@ const Conversation = () => {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder="How to i calculate the radius of a circle?"
+                        placeholder="piano solo"
                         {...field}
-                        value={input}
-                        onChange={handleInputChange}
                         autoFocus
                       />
                     </FormControl>
@@ -93,29 +94,16 @@ const Conversation = () => {
               <Loader />
             </div>
           )}
-          {messages?.length === 0 && !isLoading && (
-            <Empty label="No conversation started." />
+          {!music && !isLoading && <Empty label="No Music started." />}
+          {music && (
+            <audio controls className="w-full mt-8">
+              <source src={music} />
+            </audio>
           )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "p-4 w-full flex items-center justify-start gap-x-5 rounded-lg",
-                  message.role === "user"
-                    ? "bg-white border border-black/10 "
-                    : "bg-muted"
-                )}
-              >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                {message.content}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Conversation;
+export default MusicPage;

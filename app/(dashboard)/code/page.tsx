@@ -1,7 +1,7 @@
 "use client";
 import * as z from "zod";
 import Heading from "@/components/heading";
-import { Code, MessageSquare } from "lucide-react";
+import { Code } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { formSchema } from "./constants";
@@ -16,11 +16,27 @@ import UserAvatar from "@/components/avatar";
 import BotAvatar from "@/components/bot-avatar";
 import { useChat } from "ai/react";
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "next/navigation";
+import { useProModal } from "@/hooks/use-pro-model";
+import toast from "react-hot-toast";
 
 const CodePage = () => {
+  const { onOpen } = useProModal();
+  const router = useRouter();
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: "/api/code",
+      onFinish: () => {
+        router.refresh();
+      },
+      onError: (error) => {
+        console.log("please try again");
+        if (error.message === "free trial has expired") {
+          onOpen();
+        } else {
+          toast.error("Somthing went wrong");
+        }
+      },
     });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,6 +100,7 @@ const CodePage = () => {
           <div className="flex flex-col-reverse gap-y-4">
             {messages.map((message) => (
               <div
+                key={message.id}
                 className={cn(
                   "p-4 w-full flex items-center justify-start gap-x-5 rounded-lg",
                   message.role === "user"

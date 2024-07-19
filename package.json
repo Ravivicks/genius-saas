@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.26",
@@ -14,25 +15,33 @@
     "@clerk/nextjs": "^5.2.2",
     "@google/generative-ai": "^0.14.1",
     "@hookform/resolvers": "^3.9.0",
+    "@prisma/client": "^5.17.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "ai": "^3.2.19",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "crisp-sdk-web": "^1.0.25",
     "lucide-react": "^0.406.0",
     "next": "14.2.4",
     "openai": "^4.52.4",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
+    "react-hot-toast": "^2.4.1",
     "react-markdown": "^9.0.1",
+    "replicate": "^0.31.1",
+    "stripe": "^16.2.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.8"
+    "typewriter-effect": "^2.21.0",
+    "zod": "^3.23.8",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -41,6 +50,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
+    "prisma": "^5.16.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
